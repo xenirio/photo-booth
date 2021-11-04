@@ -25,12 +25,13 @@ var input = '';
 var t;
 var app = argv.app;
 let du = {
-  value: argv.duration.match(/\d/)[0],
+  value: argv.duration.match(/\d./)[0],
   unit: argv.duration.match(/[a-zA-Z]/)[0]
 }
 var duration = moment.duration(parseInt(du.value), du.unit) ;
 
-console.log(`Waiting for scanner...`);
+console.clear();
+console.log(`Ready to scan`);
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
 process.stdin.on('keypress', (str, key) => {
@@ -57,7 +58,7 @@ process.stdin.on('keypress', (str, key) => {
           console.log(`Code: ${input}`);
           input = '';
           clearTimeout(exec);
-          console.log(`Starting app: ${app}`);
+          // console.log(`Starting app: ${app}`);
           sendKeys(app, `<c:${trigger}>`, { delay: 0.1, initialDelay: 3 });
           console.log(`Processing - Please wait`);
 
