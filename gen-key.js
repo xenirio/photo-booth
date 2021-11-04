@@ -1,8 +1,10 @@
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
+
 const random = require('random')
-const { SymbologyType, EncodingMode, createFile } = require('symbology')
+
+const { SymbologyType, createFile } = require('symbology')
 
 if (argv.quota === undefined)
   return;
@@ -22,8 +24,7 @@ codes.forEach((code) => {
     symbology: SymbologyType.UPCA,
     fileName: `${__dirname}/keys/0000${code}.png`,
     backgroundColor: 'FFFFFFFF',
-    foregroundColor: '00000000'
-  }, `${code}`).then(res => {
-    // console.log('Result: ', res)
-  })
+    foregroundColor: '00000000',
+    scale: 1
+  }, `${code}`).then(_ => {})
 })
