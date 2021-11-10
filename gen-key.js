@@ -23,8 +23,8 @@ codes.forEach((code) => {
   createFile({
     symbology: SymbologyType.UPCA,
     fileName: `${__dirname}/keys/0000${code}.png`,
-    backgroundColor: 'FFFFFFFF',
-    foregroundColor: '00000000',
+    backgroundColor: 'FFFFFF',
+    foregroundColor: '000000',
     scale: 1
   }, `${code}`).then(_ => {})
 })
