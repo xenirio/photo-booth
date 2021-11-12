@@ -7,12 +7,12 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
 
-if(argv.app === undefined) {
+if (argv.app === undefined) {
   console.log(`--app : requries to open target application`);
   return;
 }
 
-if(argv.duration === undefined) {
+if (argv.duration === undefined) {
   console.log(`--duration : requires to wait before restart an action`);
   return;
 }
@@ -28,7 +28,18 @@ let du = {
   value: argv.duration.match(/\d./)[0],
   unit: argv.duration.match(/[a-zA-Z]/)[0]
 }
-var duration = moment.duration(parseInt(du.value), du.unit) ;
+var duration = moment.duration(parseInt(du.value), du.unit);
+
+function run_process(app, trigger, argv, duration) {
+  sendKeys(app, `<c:f:command> <c:${trigger}>`, { delay: 0.1, initialDelay: 3 });
+  console.log(`Processing - Please wait`);
+
+  setTimeout(() => {
+    sendKeys(app, `<c:f:command>`, { delay: 0.1, initialDelay: 1 });
+    sendKeys('Terminal', `cd ${__dirname} <c:return>node index\.js --app '${app}' --duration ${argv.duration} --trigger ${trigger} <c:return>`, { delay: 0.1, initialDelay: 1 });
+    process.exit();
+  }, duration);
+}
 
 console.clear();
 console.log(`Ready to scan`);
@@ -57,15 +68,8 @@ process.stdin.on('keypress', (str, key) => {
         fs.rename(file, `${dir}/${code}.png`, _ => {
           console.log(`Code: ${input}`);
           input = '';
-          clearTimeout(exec);
-          // console.log(`Starting app: ${app}`);
-          sendKeys(app, `<c:${trigger}>`, { delay: 0.1, initialDelay: 3 });
-          console.log(`Processing - Please wait`);
 
-          setTimeout(() => {
-            sendKeys('Terminal', `cd ${__dirname} <c:return>node index\.js --app '${app}' --duration ${argv.duration} --trigger ${trigger} <c:return>`, { delay: 0.1, initialDelay: 1 });
-            process.exit();
-          }, duration);
+          run_process(app, trigger, argv, duration);
         });
       });
     }
