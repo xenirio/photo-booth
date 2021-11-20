@@ -31,7 +31,7 @@ let du = {
 var duration = moment.duration(parseInt(du.value), du.unit);
 
 function run_process(app, trigger, argv, duration) {
-  sendKeys(app, `<c:f:command> <c:${trigger}>`, { delay: 0.1, initialDelay: 3 });
+  sendKeys(app, `<c:f:command><c:${trigger}>`, { delay: 3, initialDelay: 3 });
   console.log(`Processing - Please wait`);
 
   setTimeout(() => {
