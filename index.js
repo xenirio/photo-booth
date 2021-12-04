@@ -64,14 +64,14 @@ process.stdin.on('keypress', (str, key) => {
     file = `${__dirname}/keys/${code}.png`;
     if (fs.existsSync(file)) {
       let dir = `${__dirname}/keys/${moment(new Date()).format('YYYY-MM-DD')}`;
-      fs.mkdir(dir, _ => {
-        fs.rename(file, `${dir}/${code}.png`, _ => {
-          console.log(`Code: ${input}`);
-          input = '';
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
+      fs.renameSync(file, `${dir}/${code}.png`);
+      console.log(`Code: ${input}`);
+      input = '';
 
-          run_process(app, trigger, argv, duration);
-        });
-      });
+      run_process(app, trigger, argv, duration);
     }
   }
 });
