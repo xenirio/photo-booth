@@ -1,44 +1,43 @@
-const sendKeys = require('sendkeys-macos');
 const fs = require('fs');
-const { exec } = require("child_process");
+const path = require('path');
+const os = require("os");
+const sendKeys = require('sendkeys-macos');
 const moment = require('moment');
 
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
 
-if (argv.app === undefined) {
-  console.log(`--app : requries to open target application`);
-  return;
-}
-
-if (argv.duration === undefined) {
-  console.log(`--duration : requires to wait before restart an action`);
-  return;
-}
-
 const pattern = /\d{12}/;
 const readline = require('readline');
 
-var trigger = argv.trigger || 'space';
+const trigger = argv.trigger || 'space';
+const app = argv.app || 'dslrBooth';
+const prints = argv.prints || `${os.homedir()}/Pictures/dslrBooth/prints`;
+
 var input = '';
 var t;
-var app = argv.app;
-let du = {
-  value: argv.duration.match(/\d./)[0],
-  unit: argv.duration.match(/[a-zA-Z]/)[0]
-}
-var duration = moment.duration(parseInt(du.value), du.unit);
 
-function run_process(app, trigger, argv, duration) {
+function run_process() {
+  // List print files
+  const exts = fs.readdirSync(prints).filter((f) => path.extname(f) === '.jpg')
+
   sendKeys(app, `<c:f:command><c:${trigger}>`, { delay: 3, initialDelay: 3 });
   console.log(`Processing - Please wait`);
 
+  let isPrint = false
+  while(!isPrint) {
+    // Check new file at ~/Pictures/dslrBooth before proceed
+    const prts = fs.readdirSync(prints).filter((f) => path.extname(f) === '.jpg')
+    isPrint = prts.filter((prt) => exts.indexOf(prt) === -1).length > 0
+  }
+
+  const waiting = 30 // sec
   setTimeout(() => {
-    sendKeys(app, `<c:f:command>`, { delay: 0.1, initialDelay: 1 });
-    sendKeys('Terminal', `cd ${__dirname} <c:return>node index\.js --app '${app}' --duration ${argv.duration} --trigger ${trigger} <c:return>`, { delay: 0.1, initialDelay: 1 });
-    process.exit();
-  }, duration);
+      sendKeys(app, `<c:f:command>`, { delay: 0.1, initialDelay: 1 });
+      sendKeys('Terminal', `cd ${__dirname} <c:return>node index\.js --app '${app}' --trigger ${trigger} --prints ${prints} <c:return>`, { initialDelay: 1 });
+      process.exit();
+  }, waiting * 1000);
 }
 
 console.clear();
@@ -71,7 +70,7 @@ process.stdin.on('keypress', (str, key) => {
       console.log(`Code: ${input}`);
       input = '';
 
-      run_process(app, trigger, argv, duration);
+      run_process();
     }
   }
 });
